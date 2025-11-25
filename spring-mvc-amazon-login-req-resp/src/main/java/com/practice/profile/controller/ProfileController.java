@@ -30,7 +30,6 @@ public class ProfileController {
 		}else {
 			return "login-fail";
 		}
-		
 	}
 	
 }
