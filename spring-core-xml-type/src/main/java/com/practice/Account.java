@@ -1,10 +1,11 @@
 package com.practice;
-
+//POJO
 public class Account {
 	
 	private String accountNumber;
 	private String accountType;
 	private String ifsc;
+	
 	public String getAccountNumber() {
 		return accountNumber;
 	}
