@@ -18,4 +18,12 @@ public interface InvoiceService {
 
 	public abstract boolean deleteInvoice(int invoiceId);
 	
+	public abstract List<Invoice> getInvoiceBySupplier(String supplier);
+	
+	public abstract List<Invoice> getInvoicesBySupplierAndTax(String supplier, Double tax);
+	
+	public abstract List<Invoice> getInvoicesByTaxType(String taxType);
+	
+	public abstract List<Invoice> searchInvoicesBySupplier(String supplier);
+	
 }

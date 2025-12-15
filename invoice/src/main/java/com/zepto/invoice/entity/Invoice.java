@@ -1,15 +1,20 @@
 package com.zepto.invoice.entity;
 
-import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 
 @Entity
+@NamedQueries({
+		@NamedQuery(name = "Invoice.SearchBySupplier", query = "SELECT i FROM Invoice i WHERE i.supplier LIKE :supplierPattern"),
+		@NamedQuery(name = "Invoice.findByTaxType", query = "SELECT i FROM Invoice i WHERE i.taxType = :taxType")
+})
 @Table(name="invoice")
 public class Invoice {
 	
@@ -19,7 +24,7 @@ public class Invoice {
 	
 	private String supplier;
 	private String recipient;
-	private Date dueDate;
+	private String dueDate;
 	private List<String> products;
 	private List<Double> prices;
 	private Double totalPrice;
@@ -45,11 +50,11 @@ public class Invoice {
 	public void setRecipient(String recipient) {
 		this.recipient = recipient;
 	}
-	public Date getDueDate() {
+	public String getDueDate() {
 		return dueDate;
 	}
-	public void setDueDate(Date dueDate) {
-		this.dueDate = dueDate;
+	public void setDueDate(String string) {
+		this.dueDate = string;
 	}
 	public List<String> getProducts() {
 		return products;

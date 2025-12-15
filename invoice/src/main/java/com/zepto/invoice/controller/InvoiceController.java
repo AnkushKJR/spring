@@ -2,6 +2,7 @@ package com.zepto.invoice.controller;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,11 +15,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zepto.invoice.entity.Invoice;
+import com.zepto.invoice.exception.WrongDateFormatException;
 import com.zepto.invoice.request.InvoiceRequest;
 import com.zepto.invoice.service.InvoiceService;
+import com.zepto.invoice.validation.DateValidator;
 
 @RestController
 public class InvoiceController {
@@ -30,26 +34,54 @@ public class InvoiceController {
 	public ResponseEntity generateInvoice(@RequestBody InvoiceRequest invoiceRequest) {
 
 		InvoiceService invoiceService = InvoiceServiceImplementations.get(invoiceRequest.getTaxType().toLowerCase());
-
-		Invoice invoice = invoiceService.createInvoice(invoiceRequest);
-
-		int invoiceId = invoice.getInvoiceId();
-		System.out.println("Returning only ID: " + invoiceId); // Check your console logs
-
-		return ResponseEntity.ok(invoiceId);
+		
+		if(invoiceRequest.getDueDate()!="") {
+	        // ... success path ...
+			DateValidator.validateDueDate(invoiceRequest.getDueDate());
+	        Invoice invoice = invoiceService.createInvoice(invoiceRequest);
+	        int invoiceId = invoice.getInvoiceId();
+	        System.out.println("Returning only ID: " + invoiceId);
+	        return ResponseEntity.ok(invoiceId);
+	    } else {
+	        // This handles the 'false' return from the validator
+	        throw new WrongDateFormatException("ERROR: Wrong Date Format or no entry. Correct Date Format: yyyy-MM-dd");
+	    }
+		
 	}
 
 	@GetMapping("/v1/invoices")
-	public List<Invoice> getAllInvoices() {
+	public ResponseEntity invoicesBySupplier(@RequestParam(required = false) Optional<String> supplier, @RequestParam(required = false) Optional<Double> tax, @RequestParam(required = false) Optional<String> taxType) {
 		
-		List<Invoice> allInvoices = new ArrayList<>();
+		if(supplier.isPresent() && tax.isPresent()) {
+			InvoiceService invoiceService = InvoiceServiceImplementations.get("gst");
+			List<Invoice> invoices = invoiceService.getInvoicesBySupplierAndTax(supplier.get(), tax.get());
+			return ResponseEntity.ok(invoices);
+		}else if(supplier.isPresent()) {
+			InvoiceService invoiceService = InvoiceServiceImplementations.get("gst");
+			
+			//List<Invoice> invoices = invoiceService.getInvoiceBySupplier(supplier.get());
+			
+			List<Invoice> invoices = invoiceService.searchInvoicesBySupplier(supplier.get());
+			
+			return ResponseEntity.ok(invoices);
+		}else if(taxType.isPresent()) {
+			InvoiceService invoiceService = InvoiceServiceImplementations.get("gst");
+			List<Invoice> invoices = invoiceService.getInvoicesByTaxType(taxType.get());
+			return ResponseEntity.ok(invoices);
+		}else {
+//			List<Invoice> allInvoices = new ArrayList<>();
 
-		for(InvoiceService invoiceService : InvoiceServiceImplementations.values()) {
-			List<Invoice> invoicesFromService = invoiceService.getAllInvoices();
-			allInvoices.addAll(invoicesFromService);
+//			for(InvoiceService invoiceService : InvoiceServiceImplementations.values()) {
+//				List<Invoice> invoicesFromService = invoiceService.getAllInvoices();
+//				allInvoices.addAll(invoicesFromService);
+//			}
+			
+			InvoiceService invoiceService = InvoiceServiceImplementations.get("gst");
+			List<Invoice> allInvoices = invoiceService.getAllInvoices();
+			
+			return ResponseEntity.ok(allInvoices);
 		}
 		
-		return allInvoices;
 	}
 
 	@GetMapping("/v1/invoices/{invoiceId}")
@@ -82,7 +114,6 @@ public class InvoiceController {
 		return ResponseEntity.ok(updatedInvoice);
 		
 	}
-	
 	
 	@DeleteMapping("/v1/invoices/{invoiceId}")
 	public ResponseEntity deleteInvoice(@PathVariable() int invoiceId) {

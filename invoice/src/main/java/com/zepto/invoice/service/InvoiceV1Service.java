@@ -10,6 +10,9 @@ import com.zepto.invoice.entity.Invoice;
 import com.zepto.invoice.repository.InvoiceRepository;
 import com.zepto.invoice.request.InvoiceRequest;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+
 //GST
 
 @Service(value="gst")
@@ -17,6 +20,9 @@ public class InvoiceV1Service implements InvoiceService{
 	
 	@Autowired
 	InvoiceRepository invoiceRepository;
+	
+	@Autowired
+	EntityManager entityManager;
 	
 	@Override
 	public Invoice createInvoice(InvoiceRequest invoiceRequest) {
@@ -120,6 +126,44 @@ public class InvoiceV1Service implements InvoiceService{
 			return true;
 		}
 		
+	}
+
+	@Override
+	public List<Invoice> getInvoiceBySupplier(String supplier) {
+		
+		List<Invoice> invoices = invoiceRepository.findBySupplier(supplier);
+		
+		return invoices;
+	}
+
+	@Override
+	public List<Invoice> getInvoicesBySupplierAndTax(String supplier, Double tax) {
+		
+		List<Invoice> invoices = invoiceRepository.findBySupplierAndTaxLessThan(supplier, tax);
+		
+		return invoices;
+	}
+
+	@Override
+	public List<Invoice> getInvoicesByTaxType(String taxType) {
+		
+		TypedQuery<Invoice> query = entityManager.createNamedQuery("Invoice.findByTaxType", Invoice.class);
+		
+		query.setParameter("taxType", taxType);
+		
+		List<Invoice> invoices = query.getResultList();
+		
+		return invoices;
+	}
+
+	@Override
+	public List<Invoice> searchInvoicesBySupplier(String supplier) {
+		
+		TypedQuery<Invoice> query = entityManager.createNamedQuery("Invoice.SearchBySupplier", Invoice.class);
+		query.setParameter("supplierPattern", supplier + "%");
+		List<Invoice> invoices = query.getResultList();
+		
+		return invoices;
 	}
 
 	

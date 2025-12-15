@@ -1,13 +1,13 @@
 package com.zepto.invoice.request;
 
-import java.util.Date;
+
 import java.util.List;
 
 public class InvoiceRequest {
 	
 	private String supplier;
 	private String recipient;
-	private Date dueDate;
+	private String dueDate;
 	private List<String> products;
 	private List<Double> prices;
 	private Double totalPrice;
@@ -27,12 +27,7 @@ public class InvoiceRequest {
 	public void setRecipient(String recipient) {
 		this.recipient = recipient;
 	}
-	public Date getDueDate() {
-		return dueDate;
-	}
-	public void setDueDate(Date dueDate) {
-		this.dueDate = dueDate;
-	}
+	
 	public List<String> getProducts() {
 		return products;
 	}
@@ -68,6 +63,12 @@ public class InvoiceRequest {
 	}
 	public void setTax(Double tax) {
 		this.tax = tax;
+	}
+	public String getDueDate() {
+		return dueDate;
+	}
+	public void setDueDate(String dueDate) {
+		this.dueDate = dueDate;
 	}
 
 }
