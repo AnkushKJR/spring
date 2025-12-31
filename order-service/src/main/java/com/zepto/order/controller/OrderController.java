@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +20,7 @@ public class OrderController {
 	OrderService orderService;
 	
 	@PatchMapping("/orders/{order_id}")
-	public ResponseEntity updateOrderStatus(@PathVariable int order_id, @RequestBody OrderStatusRequest orderStatusRequest) {
+	public ResponseEntity<OrderStatusResponse> updateOrderStatus(@PathVariable int order_id, @RequestBody OrderStatusRequest orderStatusRequest) {
 		
 		Optional<OrderStatusResponse> orderStatusResponse = orderService.updateStatus(order_id, orderStatusRequest);
 		
